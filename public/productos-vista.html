@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+        integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.0.1/locales/es/faker.es.min.js"
+        integrity="sha512-DQrc3eajLL0VuvozdljRiM0om8z0z87wupk/TMGnkXglulsENW0rtyDRGqPkplJxKr8QdI/jM2hKKowFir+5ug=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+    <div class="container mt-3">
+        <div class="jumbotron">
+            <div id="products"></div>
+        </div>
+    </div>
+
+    <script>
+        function fetchProductosMock() {
+            return fetch('/productos-test')
+                .then(ans => ans.json())
+        }
+
+        function tableProducts(products) {
+            return fetch('./partials/productsTable.hbs')
+                .then(ans => ans.text())
+                .then(plantilla => {
+                    const temp = Handlebars.compile(plantilla);
+                    const htmlTable = temp({ products });
+                    document.getElementById('products').innerHTML = htmlTable;
+                    return htmlTable;
+                })
+        }
+
+        fetchProductosMock()
+            .then(products => {
+                return tableProducts(products)
+            })
+            .then(html => {
+                document.getElementById('products').innerHTML = html
+            })
+    </script>
+
+</body>
+
+</html>

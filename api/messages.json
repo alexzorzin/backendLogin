@@ -1,0 +1,28 @@
+
+[
+    {
+        "author": {
+            "id": "tiendargentina@gmail.com",
+           " nombre": "TiendARG",
+            "apellido": "Soporte",
+            "edad": "0",
+            "alias": "TiendARG",
+            "date": "26/4/22, 17:49",
+            "avatar": "faker.image.imageUrl()"
+        },
+       " text": "Buenas! Necesita preguntar algo?"
+    },
+    {
+        "author": {
+            "id": "juanperezH@gmail.com",
+            "nombre": "juancitoo",
+            "apellido": "perez",
+           "edad": "0",
+            "alias": "juanete",
+           " date": "26/4/22, 17:51",
+            "avatar": "faker.image.imageUrl()"
+        },
+        "text": "Hola! Vivo en Londres, cuanto tiempo me tardaría en llegar?"
+    }
+]
+

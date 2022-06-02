@@ -1,0 +1,13 @@
+.author{
+    font-weight: bold;
+    color: blue;
+}
+.date{
+    font-weight: normal;
+    color: brown;
+}
+.text{
+    font-weight: normal;
+    color: green;
+    font-style: italic;
+}
