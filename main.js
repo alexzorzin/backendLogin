@@ -33,8 +33,6 @@ app.use(session({
     }
 }));
 
-app.use(express.static('./public'));
-
 app.get('/', (req, res) => {
     if (!req.session.nombre) {
         req.session.nombre = req.query.nombre;
@@ -51,6 +49,7 @@ app.get('/', (req, res) => {
         })
     }
 });
+
 
 app.get('/logout', (req, res) => {
     req.session.destroy(err => {
