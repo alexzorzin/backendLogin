@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "node src/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,9 +12,9 @@
   "dependencies": {
     "connect-mongo": "^4.6.0",
     "cookie-parser": "^1.4.6",
-    "express": "^4.18.1",
+    "express": "^4.18.0",
     "express-handlebars": "^5.2.0",
-    "express-session": "^1.17.3",
+    "express-session": "^1.17.2",
     "faker": "^5.5.3",
     "firebase-admin": "^10.2.0",
     "knex": "^2.0.0",
@@ -22,7 +22,10 @@
     "mysql": "^2.18.1",
     "socket.io": "^4.5.0",
     "sqlite3": "^5.0.8",
-    "normalizr": "^3.6.2"
+    "normalizr": "^3.6.2",
+    "bcrypt": "^5.0.1",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {},
   "repository": {

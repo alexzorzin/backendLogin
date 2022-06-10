@@ -1,11 +1,80 @@
 const express = require('express');
+const exphbs = require('express-handlebars');
 const fs = require('fs');
 const util = require('util')
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const bCrypt = require('bcrypt');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const routes = require('./routes');
+const controllersdb = require('./controllersdb');
+const User = require('./models');
 
 const { Server: HttpServer } = require('http');
 const { Server: IOServer } = require('socket.io');
+
+passport.use('login', new LocalStrategy(
+    (username, password, done) => {
+        User.findOne({ username }, (err, user) => {
+            if (err)
+                return done(err);
+            if (!user) {
+                console.log('User not found ' + username);
+                return done(null, false);
+            }
+            if (!isValidPassword(user, password)) {
+                return done(null, false);
+            }
+
+            return done(null, user);
+        });
+    }
+));
+
+passport.use('signup', new LocalStrategy({
+    passReqToCallback: true
+}, (req, username, password, done) => {
+    User.findOne({ 'username': username }, (err, user) => {
+        if (err) {
+            return done(err);
+        }
+        if (user) {
+            return done(null, false);
+        }
+
+        const newUser = {
+            username: username,
+            password: createHash(password),
+            email: req.body.email,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName
+        }
+
+        User.create(newUser, (err, userWithId) => {
+            if (err) {
+                return done(err);
+            }
+            return done(null, userWithId);
+        })
+    })
+}));
+
+passport.serializeUser((user, done) => {
+    done(null, user._id);
+})
+
+passport.deserializeUser((id, done) => {
+    User.findById(id, done);
+});
+
+function isValidPassword(user, password) {
+    return bCrypt.compareSync(password, user.password);
+}
+
+function createHash(password) {
+    return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
+}
 
 const app = express()
 const httpServer = new HttpServer(app)
@@ -19,54 +88,63 @@ const MongoStore = require('connect-mongo');
 const advancedOptions = { useNewUrlParser: true, useUnifiedTopology: true };
 
 app.use(cookieParser());
-
 app.use(session({
     store: MongoStore.create({
-        mongoUrl: 'mongodb+srv://aleexz:caca12345@cluster0.wohmi.mongodb.net/ecommerce?retryWrites=true&w=majority',
+        mongoUrl: 'mongodb+srv://aleexz:caca12345@cluster0.wohmi.mongodb.net/?retryWrites=true&w=majority',
         mongoOptions: advancedOptions
     }),
-    secret: 'secreto',
+    secret: 'secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 60000
+        httpOnly: false,
+        secure: false,
+        maxAge: 20000
     }
 }));
 
-app.get('/', (req, res) => {
-    if (!req.session.nombre) {
-        req.session.nombre = req.query.nombre;
-        app.use('/', express.static('./public'));
-        res.sendFile(path.resolve('./public/login.html'));
-        io.on('connection', async (socket) => {
-            socket.emit('login', req.session.nombre);
-        })
+app.engine('.hbs', exphbs({ extname: '.hbs', defaultLayout: 'main.hbs' }));
+app.set('view engine', '.hbs');
+
+app.use(express.static(__dirname + '/views')); 
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+//LOGIN
+app.get('/login', routes.getLogin);
+app.post('/login', passport.authenticate('login', {failureRedirect: '/faillogin'}), routes.postLogin)
+app.get('/faillogin', routes.getFailLogin);
+
+//REGISTER
+app.get('/signup', routes.getSignup);
+app.post('/signup', passport.authenticate('signup', {failureRedirect: '/failsignup'}), routes.postSignup)
+app.get('/failsignup', routes.getFailsignup);
+
+function checkAuthentication(req, res, next) {
+    if (req.isAuthenticated()) {
+        next();
     } else {
-        app.use('/', express.static('./public'));
-        res.sendFile(path.resolve('./public/index.html'));
-        io.on('connection', async (socket) => {
-            socket.emit('login', req.session.nombre);
-        })
+        res.redirect('/login');
     }
+}
+
+app.get('/productos', checkAuthentication, (req, res) => {
+        app.use('/', express.static('../public'));
+        res.sendFile(path.resolve('../public/index.html'));
+        console.log(routes.userEmail)
+        io.on('connection', async (socket) => {
+            socket.emit('login', routes.userEmail);
+        })
 });
 
+app.get('/logout', routes.getLogout);
 
-app.get('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            res.json({ status: 'Logout error', body: err });
-        } else {
-            app.use('/', express.static('./public'));
-            res.sendFile(path.resolve('./public/back.html'));
-        }
-    });
-});
+const config = require("../options/config");
 
-const config = require("./options/config");
-
-const sqlClient = require("./container/sql");
-const firebaseClient = require("./container/firebase")
-const mongoClient = require("./container/mongo")
+const sqlClient = require("../container/sql");
+const firebaseClient = require("../container/firebase")
+const mongoClient = require("../container/mongo")
 
 // MENSAJES
 // const messagesApi = new sqlClient(config.sqlite3, "messages");
