@@ -111,6 +111,8 @@ app.use(express.static(__dirname + '/views'));
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.get('/', routes.getRoot);
+
 //LOGIN
 app.get('/login', routes.getLogin);
 app.post('/login', passport.authenticate('login', {failureRedirect: '/faillogin'}), routes.postLogin)
@@ -301,4 +303,14 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
-httpServer.listen(8080, () => console.log('SERVER ON'));
+const port = 8080;
+
+controllersdb.connectDb('mongodb+srv://aleexz:caca12345@cluster0.wohmi.mongodb.net/?retryWrites=true&w=majority', err => {
+    if (err) return console.log('error db')
+    console.log('Base de datos conectada');
+
+    app.listen(port, (err) => {
+        if (err) return console.log('error en listen server');
+        console.log('Server ON');
+    })
+})
