@@ -90,7 +90,7 @@ const advancedOptions = { useNewUrlParser: true, useUnifiedTopology: true };
 app.use(cookieParser());
 app.use(session({
     store: MongoStore.create({
-        mongoUrl: 'mongodb+srv://aleexz:caca12345@cluster0.wohmi.mongodb.net/?retryWrites=true&w=majority',
+        mongoUrl: 'mongodb+srv://aleexz:caca12345@cluster0.wohmi.mongodb.net/login?retryWrites=true&w=majority',
         mongoOptions: advancedOptions
     }),
     secret: 'secret',
